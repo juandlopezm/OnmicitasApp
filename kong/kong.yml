@@ -1,0 +1,312 @@
+_format_version: "3.0"
+_transform: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Global plugins
+# ─────────────────────────────────────────────────────────────────────────────
+plugins:
+
+  # ── CORS ──────────────────────────────────────────────────────────────────
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Authorization
+        - Content-Type
+        - X-Required-Role
+      credentials: true
+      max_age: 3600
+
+  # ── Rate Limiting global (red de seguridad por IP) ────────────────────────
+  #
+  # 500 req/min por IP cubre escenarios legítimos donde múltiples usuarios
+  # comparten la misma IP (NAT corporativo, proxy).
+  # El límite por login va en cada ruta (2000/min).
+  # El límite por usuario autenticado se aplica en la pre-function (60/min).
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: rate-limiting
+    config:
+      minute: 2000
+      policy: local
+      error_message: "Demasiadas solicitudes. Intente en un minuto."
+
+  # ── Forward-Auth + Rate Limiting por usuario (pre-function Lua) ───────────
+  #
+  # Escenario 3 — Intercepción de tráfico: token inválido/expirado → 401
+  # Escenario 4 — Acceso no autorizado por rol: rol insuficiente → 403
+  # Escenario 5 — Token revocado (JTI en blacklist) → 401
+  # Producción  — Rate limiting por X-User-Id: 60 req/min por usuario
+  #               usando fixed-window counter en ngx.shared.omnicitas_rl
+  #
+  # Rutas públicas (no requieren token): se identifican por prefijo y se
+  # omiten de la validación y del rate limiting por usuario.
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: pre-function
+    config:
+      access:
+        - |
+          local http   = require "resty.http" 
+          local cjson  = require "cjson.safe"
+          local path   = kong.request.get_path()
+
+          -- ── Rutas públicas: saltar validación y RL por usuario ──────────
+          local public_prefixes = {
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/admin/auth/login",
+            "/api/health",
+          }
+          for _, prefix in ipairs(public_prefixes) do
+            if path == prefix or path:sub(1, #prefix) == prefix then
+              return
+            end
+          end
+
+          -- ── Determinar rol requerido según la ruta ─────────────────────
+          local required_role = ""
+          if path:find("/api/admin/", 1, true) then
+            required_role = "admin"
+          elseif path:find("/api/citas", 1, true)
+              or path:find("/api/auth/me", 1, true)
+              or path:find("/api/users/", 1, true) then
+            required_role = "afiliado"
+          end
+
+          -- ── Verificar que existe el header Authorization ───────────────
+          local auth_header = kong.request.get_header("Authorization")
+          if not auth_header then
+            kong.response.set_header("Content-Type", "application/json")
+            return kong.response.exit(401, '{"detail":"Token requerido"}')
+          end
+
+          -- ── Llamar a auth-service /api/internal/auth/validate ──────────
+          local httpc = http.new()
+          httpc:set_timeout(5000)
+          local res, err = httpc:request_uri(
+            "http://auth-service:8001/api/internal/auth/validate",
+            {
+              method  = "GET",
+              headers = {
+                ["Authorization"]   = auth_header,
+                ["X-Required-Role"] = required_role,
+              },
+            }
+          )
+
+          if err or not res then
+            kong.response.set_header("Content-Type", "application/json")
+            return kong.response.exit(503, '{"detail":"Servicio de autenticacion no disponible"}')
+          end
+
+          -- ── Si auth-service rechaza (401 / 403): reenviar al cliente ───
+          if res.status ~= 200 then
+            kong.response.set_header("Content-Type", "application/json")
+            return kong.response.exit(res.status, res.body)
+          end
+
+          -- ── Token válido: propagar identidad al microservicio destino ───
+          local payload = cjson.decode(res.body)
+          if payload then
+            kong.service.request.set_header("X-User-Id",   tostring(payload.sub  or ""))
+            kong.service.request.set_header("X-User-Role", tostring(payload.role or ""))
+
+            -- ── Rate limiting por usuario (fixed window, 60 req/min) ─────
+            -- Usa ngx.shared.omnicitas_rl (10 MB registrado en docker-compose).
+            -- Clave: "u:<user_id>:<ventana_de_60s>" → expira automáticamente.
+            -- Permite 60 solicitudes por usuario por minuto sin importar cuántas
+            -- IPs distintas usa. Protege contra abuso multi-IP por usuario.
+            local user_id = tostring(payload.sub or "")
+            local dict    = ngx.shared.omnicitas_rl
+            if user_id ~= "" and dict then
+              local limit  = 2000 -- Límite alto para no interferir con el rate limiting global por IP cmabiar
+              local window = 2000   -- segundos
+              local now    = ngx.time()
+              local bucket = "u:" .. user_id .. ":" .. math.floor(now / window)
+              -- incr(key, value, init, exptime): init=0, exptime=window+5s (margen)
+              local count  = dict:incr(bucket, 1, 0, window + 5)
+              if count and count > limit then
+                kong.response.set_header("Content-Type", "application/json")
+                kong.response.set_header("Retry-After", "60")
+                kong.response.set_header("X-RateLimit-Limit-Minute",     tostring(limit))
+                kong.response.set_header("X-RateLimit-Remaining-Minute", "0")
+                return kong.response.exit(429, '{"detail":"Limite de solicitudes por usuario excedido. Intente en un minuto."}')
+              end
+              if count then
+                kong.response.set_header("X-RateLimit-Limit-Minute",     tostring(limit))
+                kong.response.set_header("X-RateLimit-Remaining-Minute", tostring(math.max(0, limit - count)))
+              end
+            end
+          end
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Services & Routes
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+
+  # ── auth-service ──────────────────────────────────────────────────────────
+  - name: auth-service
+    url: http://auth-service:8001
+    routes:
+      # Rutas de login: rate limiting estricto por IP (5/min) para prevenir
+      # fuerza bruta. Se aplica ADEMÁS del global (100/min). Al ser más
+      # restrictivo, el route-level tiene precedencia sobre el global
+      # para estas rutas específicas.
+      - name: auth-login
+        paths: ["/api/auth/login"]
+        methods: [POST]
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 2000
+              limit_by: ip
+              policy: local
+              error_message: "Demasiados intentos de login. Intente en 1 minuto."
+
+      - name: auth-register
+        paths: ["/api/auth/register"]
+        methods: [POST]
+        strip_path: false
+
+      - name: auth-logout
+        paths: ["/api/auth/logout"]
+        methods: [POST]
+        strip_path: false
+
+      - name: admin-auth-login
+        paths: ["/api/admin/auth/login"]
+        methods: [POST]
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 2000 # Límite estricto para login de admin por IP
+              limit_by: ip
+              policy: local
+              error_message: "Demasiados intentos de login de administrador. Intente en 1 minuto."
+
+      - name: admin-auth-logout
+        paths: ["/api/admin/auth/logout"]
+        methods: [POST]
+        strip_path: false
+
+      - name: auth-me
+        paths: ["/api/auth/me"]
+        methods: [GET]
+        strip_path: false
+
+      - name: admin-auth-me
+        paths: ["/api/admin/auth/me"]
+        methods: [GET]
+        strip_path: false
+
+      - name: admin-users
+        paths: ["/api/admin/users"]
+        methods: [GET, PUT]
+        strip_path: false
+
+  # ── user-service ──────────────────────────────────────────────────────────
+  - name: user-service
+    url: http://user-service:8002
+    routes:
+      - name: user-me
+        paths: ["/api/users/me"]
+        methods: [GET, PUT]
+        strip_path: false
+
+      - name: admin-afiliados
+        paths: ["/api/admin/afiliados"]
+        methods: [GET, POST]
+        strip_path: false
+
+      - name: admin-afiliados-detail
+        paths: ["/api/admin/afiliados/"]
+        methods: [GET, PUT, DELETE]
+        strip_path: false
+
+  # ── appointment-service ───────────────────────────────────────────────────
+  - name: appointment-service
+    url: http://appointment-service:8003
+    routes:
+      # POST /api/citas — crear cita (path exacto, sin trailing slash)
+      - name: citas-create
+        paths: ["/api/citas"]
+        methods: [POST]
+        strip_path: false
+
+      # GET /api/citas/mis-citas, GET /api/citas/historial,
+      # DELETE /api/citas/{id}/cancelar, PUT /api/citas/{id}/reagendar
+      # El trailing slash garantiza que solo sub-paths lleguen al servicio;
+      # GET /api/citas (sin slash) devuelve 404 en Kong en vez de 405 en el servicio.
+      - name: citas-manage
+        paths: ["/api/citas/"]
+        methods: [GET, PUT, DELETE]
+        strip_path: false
+
+      - name: admin-citas
+        paths: ["/api/admin/citas"]
+        methods: [GET, POST, PUT, DELETE]
+        strip_path: false
+
+      # Health check — expone el /api/health del appointment-service
+      # (el más informativo: incluye estados de los Circuit Breakers).
+      # Marcado como público en el pre-function Lua (/api/health prefix).
+      - name: health-check
+        paths: ["/api/health"]
+        methods: [GET]
+        strip_path: false
+
+  # ── medical-service ───────────────────────────────────────────────────────
+  - name: medical-service
+    url: http://medical-service:8004
+    routes:
+      - name: medicos-public
+        paths: ["/api/medicos"]
+        methods: [GET]
+        strip_path: false
+
+      - name: medicos-detail-public
+        paths: ["/api/medicos/"]
+        methods: [GET]
+        strip_path: false
+
+      - name: especialidades-public
+        paths: ["/api/especialidades"]
+        methods: [GET]
+        strip_path: false
+
+      - name: sedes-public
+        paths: ["/api/sedes"]
+        methods: [GET]
+        strip_path: false
+
+      - name: horarios-disponibles
+        paths: ["/api/horarios/disponibles"]
+        methods: [GET]
+        strip_path: false
+
+      - name: graphql
+        paths: ["/graphql"]
+        methods: [GET, POST]
+        strip_path: false
+
+      - name: admin-medical
+        paths: ["/api/admin/medicos", "/api/admin/especialidades", "/api/admin/sedes", "/api/admin/horarios"]
+        methods: [GET, POST, PUT, DELETE, PATCH]
+        strip_path: false
+
+      # Sub-paths: /api/admin/medicos/{id}, /api/admin/medicos/{id}/jornadas/{jid}
+      #            /api/admin/horarios/{id}, /api/admin/horarios/generar
+      #            /api/admin/horarios/dias-no-habiles, /api/admin/horarios/dias-no-habiles/{id}
+      - name: admin-medical-detail
+        paths: ["/api/admin/medicos/", "/api/admin/horarios/"]
+        methods: [GET, POST, PUT, DELETE, PATCH]
+        strip_path: false

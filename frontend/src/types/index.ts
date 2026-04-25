@@ -1,18 +1,3 @@
-export interface Usuario {
-  id: string;
-  nombre: string;
-  email: string;
-  password: string;
-  rol: 'paciente' | 'admin';
-}
-
-export interface AdminUsuario {
-  id: string;
-  nombre: string;
-  email: string;
-  password: string;
-}
-
 export interface Especialidad {
   id: string;
   nombre: string;
@@ -28,6 +13,7 @@ export interface Medico {
 export interface HorarioDisponible {
   id: string;
   medicoId: string;
+  sedeId: string;
   fecha: string; // YYYY-MM-DD
   hora: string;  // HH:mm
   estado: 'disponible' | 'ocupado';
@@ -42,13 +28,14 @@ export interface Sede {
 export interface Cita {
   id: string;
   usuarioId: string;
+  beneficiarioId?: string;   // undefined = cita para el propio afiliado
   medicoId: string;
   medicoNombre: string;
   especialidadId: string;
   especialidadNombre: string;
   sedeId: string;
   sedeNombre: string;
-  pacienteNombre?: string;
+  pacienteNombre?: string;   // nombre del beneficiario, ausente si es para el propio afiliado
   fecha: string;
   hora: string;
   estado: 'programada' | 'confirmada' | 'cancelada' | 'completada' | 'no_asistio' | 'reagendada';
@@ -76,11 +63,12 @@ export interface Afiliado {
   tipo: TipoAfiliado;
   cotizanteId?: string; // solo si tipo === 'beneficiario'
   estado: EstadoAfiliado;
+  beneficiarios?: Afiliado[]; // solo si tipo === 'cotizante' y se solicitó include_beneficiarios
 }
 
 export type AuthResult<T = void> =
   | { ok: true; data: T }
-  | { ok: false; error: string };
+  | { ok: false; error: string; errorLabel?: string };
 
 export interface LoginCredentials {
   tipo_documento: TipoDocumento;
@@ -103,8 +91,11 @@ export interface DatosRegistro {
 
 export interface NuevaCita {
   especialidadId: string;
+  especialidadNombre?: string;
   medicoId: string;
+  medicoNombre?: string;
   sedeId: string;
+  sedeNombre?: string;
   fecha: string;
   hora: string;
   horarioId: string;

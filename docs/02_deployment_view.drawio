@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram name="Deployment View" id="deploy-view">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TÍTULO -->
+        <mxCell id="title" value="OmniCitas — Deployment View" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="550" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             HOST MACHINE
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="host" value="&lt;b&gt;Host Machine&lt;/b&gt; (Windows 10 / Linux Server)&lt;br&gt;Docker Engine" style="swimlane;startSize=40;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=13;fontStyle=1;horizontal=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1820" height="1260" as="geometry" />
+        </mxCell>
+
+        <!-- Puertos expuestos al host -->
+        <mxCell id="ports" value="Puertos expuestos: :80 · :443" style="text;html=1;strokeColor=#666666;fillColor=#e6e6e6;align=center;fontSize=11;rounded=1;fontStyle=1;" vertex="1" parent="host">
+          <mxGeometry x="760" y="55" width="280" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             NET-PUBLIC
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="net-public" value="net-public  (bridge)" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1a1a2e;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="host">
+          <mxGeometry x="30" y="100" width="270" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frontend-pub" value="&lt;b&gt;frontend&lt;/b&gt;&lt;br&gt;nginx:alpine&lt;br&gt;React build (Vite)&lt;br&gt;:80" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="net-public">
+          <mxGeometry x="40" y="40" width="190" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             NET-EDGE
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="net-edge" value="net-edge  (bridge)" style="swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#1a1a2e;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="host">
+          <mxGeometry x="30" y="240" width="270" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="proxy" value="&lt;b&gt;proxy&lt;/b&gt;&lt;br&gt;nginx:alpine&lt;br&gt;nginx.conf · cert.pem/key.pem&lt;br&gt;TLS 1.2/1.3 · HSTS&lt;br&gt;Host :80 :443" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="net-edge">
+          <mxGeometry x="30" y="40" width="210" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="frontend-edge" value="&lt;b&gt;frontend&lt;/b&gt;&lt;br&gt;(también en net-edge)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;dashed=1;" vertex="1" parent="net-edge">
+          <mxGeometry x="30" y="140" width="210" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             NET-PRIVATE (internal)
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="net-private" value="net-private  (bridge · internal: true)" style="swimlane;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#1a1a2e;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="host">
+          <mxGeometry x="30" y="460" width="620" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="proxy-priv" value="&lt;b&gt;proxy&lt;/b&gt;&lt;br&gt;(también en net-private)&lt;br&gt;upstream: kong:8000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;dashed=1;" vertex="1" parent="net-private">
+          <mxGeometry x="30" y="45" width="190" height="65" as="geometry" />
+        </mxCell>
+
+        <mxCell id="kong" value="&lt;b&gt;kong&lt;/b&gt;&lt;br&gt;kong:3.7-alpine&lt;br&gt;kong.yml (DB-less)&lt;br&gt;public.pem&lt;br&gt;pre-function Lua" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="net-private">
+          <mxGeometry x="250" y="40" width="180" height="85" as="geometry" />
+        </mxCell>
+
+        <mxCell id="private-note" value="⚠ No accesible desde Internet" style="text;html=1;strokeColor=none;fillColor=#ffd7d7;rounded=1;fontSize=10;fontStyle=2;align=center;" vertex="1" parent="net-private">
+          <mxGeometry x="450" y="60" width="160" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             NET-INTERNAL (internal)
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="net-internal" value="net-internal  (bridge · internal: true)" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#1a1a2e;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="host">
+          <mxGeometry x="30" y="650" width="1380" height="240" as="geometry" />
+        </mxCell>
+
+        <mxCell id="kong-int" value="&lt;b&gt;kong&lt;/b&gt;&lt;br&gt;(también en net-internal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;dashed=1;" vertex="1" parent="net-internal">
+          <mxGeometry x="20" y="50" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth-c" value="&lt;b&gt;auth-service&lt;/b&gt;&lt;br&gt;python:3.12-slim&lt;br&gt;FastAPI · uvicorn&lt;br&gt;private.pem · public.pem&lt;br&gt;:8001" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="net-internal">
+          <mxGeometry x="210" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-c" value="&lt;b&gt;user-service&lt;/b&gt;&lt;br&gt;python:3.12-slim&lt;br&gt;FastAPI · uvicorn&lt;br&gt;public.pem&lt;br&gt;:8002" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="net-internal">
+          <mxGeometry x="440" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="appt-c" value="&lt;b&gt;appointment-service&lt;/b&gt;&lt;br&gt;python:3.12-slim&lt;br&gt;FastAPI · uvicorn&lt;br&gt;public.pem · Circuit Breaker&lt;br&gt;:8003" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="net-internal">
+          <mxGeometry x="670" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="med-c" value="&lt;b&gt;medical-service&lt;/b&gt;&lt;br&gt;python:3.12-slim&lt;br&gt;FastAPI · Strawberry&lt;br&gt;public.pem · /graphql&lt;br&gt;:8004" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="net-internal">
+          <mxGeometry x="900" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notif-c" value="&lt;b&gt;notification-service&lt;/b&gt;&lt;br&gt;python:3.12-slim&lt;br&gt;FastAPI · placeholder&lt;br&gt;:8005" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;dashed=1;" vertex="1" parent="net-internal">
+          <mxGeometry x="1130" y="40" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="internal-note" value="⚠ No accesible desde Internet" style="text;html=1;strokeColor=none;fillColor=#c9f0c9;rounded=1;fontSize=10;fontStyle=2;align=center;" vertex="1" parent="net-internal">
+          <mxGeometry x="1140" y="160" width="220" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             NET-DATA (internal)
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="net-data" value="net-data  (bridge · internal: true)" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#1a1a2e;fontSize=11;fontStyle=1;rounded=1;" vertex="1" parent="host">
+          <mxGeometry x="30" y="920" width="1780" height="380" as="geometry" />
+        </mxCell>
+
+        <!-- Servicios reflejados en net-data -->
+        <mxCell id="svc-data-note" value="auth · user · appointment · medical · notification&lt;br&gt;(también conectados a net-data)" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;rounded=1;fontSize=10;align=center;" vertex="1" parent="net-data">
+          <mxGeometry x="30" y="40" width="480" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- db-auth -->
+        <mxCell id="db-auth-c" value="&lt;b&gt;db-auth&lt;/b&gt;&lt;br&gt;postgres:16-alpine&lt;br&gt;omnicitas_auth&lt;br&gt;admin_usuarios&lt;br&gt;user_credentials&lt;br&gt;revoked_tokens&lt;br&gt;Vol: postgres_auth_data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=20;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="net-data">
+          <mxGeometry x="30" y="100" width="190" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- db-users -->
+        <mxCell id="db-users-c" value="&lt;b&gt;db-users&lt;/b&gt;&lt;br&gt;postgres:16-alpine&lt;br&gt;omnicitas_users&lt;br&gt;afiliados&lt;br&gt;&lt;br&gt;Vol: postgres_users_data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=20;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="net-data">
+          <mxGeometry x="280" y="100" width="190" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- db-appointments -->
+        <mxCell id="db-appt-c" value="&lt;b&gt;db-appointments&lt;/b&gt;&lt;br&gt;postgres:16-alpine&lt;br&gt;omnicitas_appointments&lt;br&gt;citas (snapshot)&lt;br&gt;&lt;br&gt;Vol: postgres_appointments_data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=20;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="net-data">
+          <mxGeometry x="530" y="100" width="190" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- db-medical -->
+        <mxCell id="db-med-c" value="&lt;b&gt;db-medical&lt;/b&gt;&lt;br&gt;postgres:16-alpine&lt;br&gt;omnicitas_medical&lt;br&gt;medicos · especialidades&lt;br&gt;sedes · horarios&lt;br&gt;jornadas · dias_no_habiles&lt;br&gt;Vol: postgres_medical_data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=20;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="net-data">
+          <mxGeometry x="780" y="100" width="190" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- RabbitMQ -->
+        <mxCell id="rabbit-c" value="&lt;b&gt;rabbitmq-core&lt;/b&gt;&lt;br&gt;rabbitmq:3.13-management&lt;br&gt;Exchange: omnicitas.events&lt;br&gt;Queue: cita.* (durable)&lt;br&gt;AMQP :5672&lt;br&gt;Mgmt UI :15672&lt;br&gt;Vol: rabbitmq_data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=20;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="net-data">
+          <mxGeometry x="1030" y="100" width="200" height="240" as="geometry" />
+        </mxCell>
+
+        <!-- pgAdmin (tools profile) -->
+        <mxCell id="pgadmin-c" value="&lt;b&gt;pgadmin&lt;/b&gt; (--profile tools)&lt;br&gt;dpage/pgadmin4&lt;br&gt;Host :5050" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#888888;fontSize=10;dashed=1;" vertex="1" parent="net-data">
+          <mxGeometry x="1290" y="160" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Seed container -->
+        <mxCell id="seed-c" value="&lt;b&gt;seed&lt;/b&gt; (--profile seed)&lt;br&gt;python:3.12-slim&lt;br&gt;seed.py → 4 DBs&lt;br&gt;Ejecuta una sola vez" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6e6e6;strokeColor=#888888;fontSize=10;dashed=1;" vertex="1" parent="net-data">
+          <mxGeometry x="1290" y="260" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="data-note" value="⚠ No accesible desde Internet ni desde net-internal directamente" style="text;html=1;strokeColor=none;fillColor=#ffd9b3;rounded=1;fontSize=10;fontStyle=2;align=center;" vertex="1" parent="net-data">
+          <mxGeometry x="1530" y="160" width="240" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             CLIENTE EXTERNO (fuera del host)
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="client" value="&lt;b&gt;Cliente&lt;/b&gt;&lt;br&gt;Browser&lt;br&gt;HTTPS :443" style="shape=mxgraph.cisco.computers_and_peripherals.pc;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="815" y="15" width="70" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             CONECTORES ENTRE REDES
+        ═══════════════════════════════════════════════════ -->
+
+        <!-- Cliente → proxy -->
+        <mxCell id="ce1" value="HTTPS :443" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;strokeWidth=2;fontColor=#333333;fontSize=10;" edge="1" source="client" target="proxy" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- proxy → kong (net-private) -->
+        <mxCell id="ce2" value="HTTP kong:8000" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;strokeWidth=2;fontColor=#333333;fontSize=10;" edge="1" source="proxy" target="kong" parent="host">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- kong-int → servicios (net-internal) -->
+        <mxCell id="ce3" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=1;fontColor=#333333;fontSize=10;" edge="1" source="kong-int" target="auth-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ce4" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" source="kong-int" target="user-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ce5" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" source="kong-int" target="appt-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ce6" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=1;" edge="1" source="kong-int" target="med-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ce7" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;strokeWidth=1;dashed=1;" edge="1" source="kong-int" target="notif-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- auth-c → user-c (Circuit Breaker) -->
+        <mxCell id="ce8" value="HTTP+CB" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#009900;strokeWidth=2;fontColor=#333333;fontSize=9;" edge="1" source="auth-c" target="user-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- appt-c → user-c (Circuit Breaker) -->
+        <mxCell id="ce9" value="HTTP+CB" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#009900;strokeWidth=2;fontColor=#333333;fontSize=9;" edge="1" source="appt-c" target="user-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="770" y="190" />
+              <mxPoint x="540" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- appt-c → med-c (Circuit Breaker) -->
+        <mxCell id="ce10" value="HTTP+CB" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#009900;strokeWidth=2;fontColor=#333333;fontSize=9;" edge="1" source="appt-c" target="med-c" parent="net-internal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════
+             LEYENDA
+        ═══════════════════════════════════════════════════ -->
+        <mxCell id="leg-title" value="Leyenda de Redes" style="text;html=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="90" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="net-public (bridge)" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="115" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="net-edge (bridge)" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="148" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="net-private (internal ✓)" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="181" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="net-internal (internal ✓)" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="214" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="net-data (internal ✓)" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="247" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" value="(internal ✓) = no expuesto a Internet" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="280" width="200" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

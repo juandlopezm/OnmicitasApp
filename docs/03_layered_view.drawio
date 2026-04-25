@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" version="24.7.5">
+  <diagram id="layered-view" name="03 – Layered View">
+    <mxGraphModel dx="1422" dy="900" grid="0" gridSize="10" guides="1" tooltips="1"
+                  connect="1" arrows="1" fold="1" page="1" pageScale="1"
+                  pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- LAYER 1 — Presentación                                         -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <mxCell id="l1"
+                value="&lt;b&gt;Presentación&lt;/b&gt;"
+                style="swimlane;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;startSize=30;fontColor=#333333;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l1-browser"
+                value="Browser"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=11;align=center;"
+                vertex="1" parent="l1">
+          <mxGeometry x="180" y="35" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="l1-spa"
+                value="React SPA"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=11;align=center;"
+                vertex="1" parent="l1">
+          <mxGeometry x="500" y="35" width="150" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- LAYER 2 — Borde / Seguridad                                    -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <mxCell id="l2"
+                value="&lt;b&gt;Borde / Seguridad&lt;/b&gt;"
+                style="swimlane;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=13;startSize=30;fontColor=#333333;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="1300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l2-nginx"
+                value="&lt;b&gt;Nginx&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:10px'&gt;TLS termination&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=11;align=center;html=1;"
+                vertex="1" parent="l2">
+          <mxGeometry x="120" y="32" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l2-kong"
+                value="&lt;b&gt;Kong API Gateway&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:10px'&gt;forward-auth · rate-limit · CORS&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=11;align=center;html=1;"
+                vertex="1" parent="l2">
+          <mxGeometry x="440" y="32" width="270" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- LAYER 3 — Lógica de Negocio                                    -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <mxCell id="l3"
+                value="&lt;b&gt;Lógica de Negocio&lt;/b&gt;"
+                style="swimlane;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;startSize=30;fontColor=#333333;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="360" width="1300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-auth"
+                value="auth-service"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=center;"
+                vertex="1" parent="l3">
+          <mxGeometry x="15" y="35" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-user"
+                value="user-service"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=center;"
+                vertex="1" parent="l3">
+          <mxGeometry x="185" y="35" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-apt"
+                value="appointment-service"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=center;"
+                vertex="1" parent="l3">
+          <mxGeometry x="360" y="35" width="175" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-med"
+                value="medical-service"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=center;"
+                vertex="1" parent="l3">
+          <mxGeometry x="570" y="35" width="155" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="l3-notif"
+                value="notification-service"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;align=center;"
+                vertex="1" parent="l3">
+          <mxGeometry x="760" y="35" width="175" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- LAYER 4 — Integración                                          -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <mxCell id="l4"
+                value="&lt;b&gt;Integración&lt;/b&gt;"
+                style="swimlane;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;startSize=30;fontColor=#333333;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="520" width="1300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l4-http"
+                value="&lt;b&gt;HTTP + Circuit Breaker&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:10px'&gt;inter-service calls (pybreaker)&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=11;align=center;html=1;"
+                vertex="1" parent="l4">
+          <mxGeometry x="80" y="32" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l4-gql"
+                value="&lt;b&gt;GraphQL&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:10px'&gt;Strawberry — read-only&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=11;align=center;html=1;"
+                vertex="1" parent="l4">
+          <mxGeometry x="490" y="32" width="185" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l4-amqp"
+                value="&lt;b&gt;AMQP Publisher&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:10px'&gt;pika / exchange omnicitas.events&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=11;align=center;html=1;"
+                vertex="1" parent="l4">
+          <mxGeometry x="850" y="32" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- LAYER 5 — Datos                                                -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <mxCell id="l5"
+                value="&lt;b&gt;Datos&lt;/b&gt;"
+                style="swimlane;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=13;startSize=30;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="680" width="1300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l5-dba"
+                value="db-auth"
+                style="shape=cylinder3;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;"
+                vertex="1" parent="l5">
+          <mxGeometry x="40" y="22" width="105" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5-dbu"
+                value="db-users"
+                style="shape=cylinder3;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+                vertex="1" parent="l5">
+          <mxGeometry x="220" y="22" width="105" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5-dbap"
+                value="db-appointments"
+                style="shape=cylinder3;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=10;align=center;"
+                vertex="1" parent="l5">
+          <mxGeometry x="400" y="22" width="135" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5-dbm"
+                value="db-medical"
+                style="shape=cylinder3;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;"
+                vertex="1" parent="l5">
+          <mxGeometry x="615" y="22" width="115" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="l5-rmq"
+                value="RabbitMQ"
+                style="rounded=1;arcSize=50;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;fontStyle=1;"
+                vertex="1" parent="l5">
+          <mxGeometry x="820" y="25" width="115" height="58" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- INTER-LAYER ARROWS                                             -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+
+        <!-- L1 → L2 : HTTPS -->
+        <mxCell id="a12"
+                value="HTTPS"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=block;endFill=1;fontSize=11;fontStyle=1;strokeWidth=2;"
+                edge="1" parent="1" source="l1" target="l2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- L2 → L3 : HTTP (Kong routes) -->
+        <mxCell id="a23"
+                value="HTTP"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=block;endFill=1;fontSize=11;fontStyle=1;strokeWidth=2;"
+                edge="1" parent="1" source="l2" target="l3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- L3 → L4 : calls integration layer -->
+        <mxCell id="a34"
+                value=""
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=block;endFill=1;strokeWidth=2;"
+                edge="1" parent="1" source="l3" target="l4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- L4 → L5 : persists / publishes -->
+        <mxCell id="a45"
+                value=""
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=block;endFill=1;strokeWidth=2;"
+                edge="1" parent="1" source="l4" target="l5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

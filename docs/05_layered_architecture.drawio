@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" version="24.7.5">
+  <diagram id="layered-arch" name="05 – Layered Architecture">
+    <mxGraphModel dx="1422" dy="900" grid="0" gridSize="10" guides="1" tooltips="1"
+                  connect="1" arrows="1" fold="1" page="1" pageScale="1"
+                  pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- T1 — PRESENTATION TIER                                            -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="t1"
+                value="&lt;b&gt;T1 — Presentation Tier&lt;/b&gt;"
+                style="swimlane;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;startSize=30;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="1260" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- T1 Layers -->
+        <mxCell id="t1-ui"
+                value="&lt;b&gt;UI Components&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;React pages · components · hooks&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t1">
+          <mxGeometry x="190" y="18" width="220" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="t1-api"
+                value="&lt;b&gt;API Client&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;apiClient.ts · ApiError · graphqlRequest&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t1">
+          <mxGeometry x="560" y="18" width="260" height="52" as="geometry" />
+        </mxCell>
+        <!-- T1 internal layer arrow -->
+        <mxCell id="e-t1-int"
+                value=""
+                style="endArrow=open;endFill=0;strokeColor=#82b366;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"
+                edge="1" parent="t1" source="t1-ui" target="t1-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- T2 — EDGE TIER                                                    -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="t2"
+                value="&lt;b&gt;T2 — Edge Tier&lt;/b&gt;"
+                style="swimlane;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;startSize=30;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="60" y="185" width="1260" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- T2 Layers -->
+        <mxCell id="t2-tls"
+                value="&lt;b&gt;TLS / Proxy&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;Nginx — termina HTTPS · reverse proxy&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t2">
+          <mxGeometry x="140" y="18" width="230" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-gw"
+                value="&lt;b&gt;Gateway / AuthZ&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;Kong — forward-auth · rate-limit · CORS&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#d6b656;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t2">
+          <mxGeometry x="490" y="18" width="280" height="52" as="geometry" />
+        </mxCell>
+        <!-- T2 internal layer arrow -->
+        <mxCell id="e-t2-int"
+                value=""
+                style="endArrow=open;endFill=0;strokeColor=#d6b656;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"
+                edge="1" parent="t2" source="t2-tls" target="t2-gw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- T3 — SERVICE TIER                                                 -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="t3"
+                value="&lt;b&gt;T3 — Service Tier&lt;/b&gt;"
+                style="swimlane;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;startSize=30;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="60" y="330" width="1260" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Internal layers label -->
+        <mxCell id="t3-lbl-layers"
+                value="layers →"
+                style="text;fontStyle=2;fontSize=10;fontColor=#6c8ebf;align=left;"
+                vertex="1" parent="t3">
+          <mxGeometry x="8" y="14" width="55" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Internal layers -->
+        <mxCell id="t3-routing"
+                value="Routing"
+                style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="70" y="8" width="145" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-biz"
+                value="Business Logic"
+                style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="265" y="8" width="160" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-dao"
+                value="Data Access"
+                style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="480" y="8" width="145" height="38" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Internal layer arrows -->
+        <mxCell id="e-t3-r-b"
+                value=""
+                style="endArrow=open;endFill=0;strokeColor=#6c8ebf;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"
+                edge="1" parent="t3" source="t3-routing" target="t3-biz">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-t3-b-d"
+                value=""
+                style="endArrow=open;endFill=0;strokeColor=#6c8ebf;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"
+                edge="1" parent="t3" source="t3-biz" target="t3-dao">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Segments label -->
+        <mxCell id="t3-lbl-seg"
+                value="segments →"
+                style="text;fontStyle=2;fontSize=10;fontColor=#6c8ebf;align=left;"
+                vertex="1" parent="t3">
+          <mxGeometry x="8" y="75" width="70" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Segment boxes -->
+        <mxCell id="t3-auth"
+                value="&lt;b&gt;auth-service&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;Identity &amp;amp; Access&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="20" y="100" width="175" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-user"
+                value="&lt;b&gt;user-service&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;User Management&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="235" y="100" width="175" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-apt"
+                value="&lt;b&gt;appointment-service&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;Appointment Mgmt&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="455" y="100" width="185" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-med"
+                value="&lt;b&gt;medical-service&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;Medical Catalog&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="685" y="100" width="175" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-notif"
+                value="&lt;b&gt;notification-service&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;Notifications&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t3">
+          <mxGeometry x="905" y="100" width="185" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Lateral relations between segments (allowed-to-use, same layer, acyclic) -->
+        <!-- auth → user -->
+        <mxCell id="e-auth-user"
+                value="usa"
+                style="endArrow=open;endFill=0;strokeColor=#6c8ebf;fontSize=9;fontStyle=2;exitX=1;exitY=0.3;entryX=0;entryY=0.3;"
+                edge="1" parent="t3" source="t3-auth" target="t3-user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- apt → user (arco por arriba) -->
+        <mxCell id="e-apt-user"
+                value="usa"
+                style="endArrow=open;endFill=0;strokeColor=#6c8ebf;fontSize=9;fontStyle=2;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;entryX=0.5;entryY=0;"
+                edge="1" parent="t3" source="t3-apt" target="t3-user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="455" y="78" />
+              <mxPoint x="322" y="78" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <!-- apt → medical -->
+        <mxCell id="e-apt-med"
+                value="usa"
+                style="endArrow=open;endFill=0;strokeColor=#6c8ebf;fontSize=9;fontStyle=2;exitX=1;exitY=0.3;entryX=0;entryY=0.3;"
+                edge="1" parent="t3" source="t3-apt" target="t3-med">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- T4 — INTEGRATION TIER                                             -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="t4"
+                value="&lt;b&gt;T4 — Integration Tier&lt;/b&gt;"
+                style="swimlane;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;startSize=30;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="60" y="598" width="1260" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- T4 Layers -->
+        <mxCell id="t4-sync"
+                value="&lt;b&gt;Sync&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;HTTP + Circuit Breaker (httpx/pybreaker)&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t4">
+          <mxGeometry x="80" y="18" width="270" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="t4-gql"
+                value="&lt;b&gt;Query&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;GraphQL — Strawberry (read-only)&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t4">
+          <mxGeometry x="490" y="18" width="240" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="t4-amqp"
+                value="&lt;b&gt;Async&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;AMQP Publisher — pika&lt;/font&gt;"
+                style="rounded=1;fillColor=#ffffff;strokeColor=#9673a6;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t4">
+          <mxGeometry x="870" y="18" width="240" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- T5 — PERSISTENCE TIER                                             -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="t5"
+                value="&lt;b&gt;T5 — Persistence Tier&lt;/b&gt;"
+                style="swimlane;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;startSize=30;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="60" y="745" width="1260" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- T5 Layers -->
+        <mxCell id="t5-sql"
+                value="&lt;b&gt;Relational&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;PostgreSQL × 4 &amp;nbsp;|&amp;nbsp; db-auth · db-users · db-appointments · db-medical&lt;/font&gt;"
+                style="shape=cylinder3;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t5">
+          <mxGeometry x="100" y="8" width="480" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="t5-mq"
+                value="&lt;b&gt;Message Store&lt;/b&gt;&lt;br/&gt;&lt;font style='font-size:9px'&gt;RabbitMQ — exchange omnicitas.events&lt;/font&gt;"
+                style="rounded=1;arcSize=50;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;html=1;align=center;"
+                vertex="1" parent="t5">
+          <mxGeometry x="740" y="15" width="290" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- INTER-TIER RELATIONS                                              -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+
+        <!-- T1 → T2: allowed-to-use -->
+        <mxCell id="e-t1t2"
+                value="allowed-to-use"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=0.5;entryY=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=10;fontStyle=1;"
+                edge="1" parent="1" source="t1" target="t2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- T2 → T3: allowed-to-use -->
+        <mxCell id="e-t2t3"
+                value="allowed-to-use"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=0.5;entryY=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=10;fontStyle=1;"
+                edge="1" parent="1" source="t2" target="t3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- T3 → T4: allowed-to-use -->
+        <mxCell id="e-t3t4"
+                value="allowed-to-use"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=0.5;entryY=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=10;fontStyle=1;"
+                edge="1" parent="1" source="t3" target="t4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- T4 → T5: allowed-to-use -->
+        <mxCell id="e-t4t5"
+                value="allowed-to-use"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=0.5;entryY=0;endArrow=block;endFill=1;strokeWidth=2;fontSize=10;fontStyle=1;"
+                edge="1" parent="1" source="t4" target="t5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- T3 → T5: allowed-to-use-below (dashed, right side bypass) -->
+        <mxCell id="e-t3t5"
+                value="allowed-to-use-below"
+                style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;entryX=1;entryY=0.5;endArrow=block;endFill=1;dashed=1;strokeWidth=2;strokeColor=#FF8000;fontSize=10;fontStyle=3;fontColor=#FF8000;"
+                edge="1" parent="1" source="t3" target="t5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1360" y="440" />
+              <mxPoint x="1360" y="795" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- LEGEND                                                             -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <mxCell id="legend"
+                value="&lt;b&gt;Relaciones&lt;/b&gt;"
+                style="swimlane;fillColor=#ffffff;strokeColor=#333333;fontSize=11;startSize=25;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="60" y="875" width="700" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Allowed-to-use line -->
+        <mxCell id="leg-use-line"
+                value=""
+                style="endArrow=block;endFill=1;strokeWidth=2;"
+                edge="1" parent="legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="47" as="sourcePoint" />
+            <mxPoint x="80" y="47" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg-use-lbl"
+                value="allowed-to-use — capa N usa capa N-1 (adyacente)"
+                style="text;fontSize=11;align=left;"
+                vertex="1" parent="legend">
+          <mxGeometry x="90" y="35" width="350" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Allowed-to-use-below line -->
+        <mxCell id="leg-below-line"
+                value=""
+                style="endArrow=block;endFill=1;dashed=1;strokeWidth=2;strokeColor=#FF8000;"
+                edge="1" parent="legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="72" as="sourcePoint" />
+            <mxPoint x="80" y="72" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg-below-lbl"
+                value="allowed-to-use-below — capa N usa cualquier capa inferior (no adyacente)"
+                style="text;fontSize=11;align=left;fontColor=#FF8000;"
+                vertex="1" parent="legend">
+          <mxGeometry x="90" y="60" width="450" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

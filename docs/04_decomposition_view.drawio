@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram name="Decomposition View" id="decomp-view-actual">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TÍTULO -->
+        <mxCell id="title" value="OmniCitas — Decomposition View" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="550" y="14" width="800" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ROOT -->
+        <mxCell id="root" value="&lt;b&gt;OmniCitas&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a2e;fontColor=#ffffff;strokeColor=#1a1a2e;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="60" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: root → services -->
+        <mxCell id="e-r-a"  style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;" edge="1" source="root" target="auth0"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-r-u"  style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;" edge="1" source="root" target="user0"  parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-r-ap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;" edge="1" source="root" target="ap0"    parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-r-m"  style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;" edge="1" source="root" target="med0"   parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e-r-n"  style="edgeStyle=orthogonalEdgeStyle;rounded=0;endArrow=open;endFill=0;" edge="1" source="root" target="not0"   parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════
+             AUTH-SERVICE  :8001
+        ═══════════════════════════════════════════════════════ -->
+        <mxCell id="auth0" value="&lt;b&gt;auth-service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal'&gt;:8001 · FastAPI · JWT RS256&lt;/font&gt;" style="swimlane;startSize=50;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1a1a2e;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="180" width="340" height="570" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a-ro" value="&lt;b&gt;routers&lt;/b&gt;&lt;br&gt;authentication · session · user_admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff5fb;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="60" width="320" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="a-sv" value="&lt;b&gt;services&lt;/b&gt;&lt;br&gt;auth_service · token_service · user_client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff5fb;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="132" width="320" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="a-rp" value="&lt;b&gt;repositories&lt;/b&gt;&lt;br&gt;credential_repository · admin_repository&lt;br&gt;revoked_token_repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff5fb;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="204" width="320" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="a-mo" value="&lt;b&gt;models&lt;/b&gt;&lt;br&gt;user_credential · admin_usuario · revoked_token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff5fb;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="286" width="320" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="a-rs" value="&lt;b&gt;resilience&lt;/b&gt;&lt;br&gt;circuit_breakers  (pybreaker · fail_max=3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff5fb;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="358" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a-cf" value="&lt;b&gt;config&lt;/b&gt;&lt;br&gt;database · settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff5fb;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="423" width="320" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="a-app" value="app.py" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontStyle=2;fontColor=#6c8ebf;" vertex="1" parent="auth0">
+          <mxGeometry x="10" y="485" width="320" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════
+             USER-SERVICE  :8002
+        ═══════════════════════════════════════════════════════ -->
+        <mxCell id="user0" value="&lt;b&gt;user-service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal'&gt;:8002 · FastAPI · CRUD afiliados&lt;/font&gt;" style="swimlane;startSize=50;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#1a1a2e;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="180" width="300" height="450" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-ro" value="&lt;b&gt;routers&lt;/b&gt;&lt;br&gt;registration · profile · search · internal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf5ec;strokeColor=#82b366;fontSize=10;" vertex="1" parent="user0">
+          <mxGeometry x="10" y="60" width="280" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="u-sv" value="&lt;b&gt;services&lt;/b&gt;&lt;br&gt;afiliado_service · token_service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf5ec;strokeColor=#82b366;fontSize=10;" vertex="1" parent="user0">
+          <mxGeometry x="10" y="132" width="280" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u-rp" value="&lt;b&gt;repositories&lt;/b&gt;&lt;br&gt;afiliado_repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf5ec;strokeColor=#82b366;fontSize=10;" vertex="1" parent="user0">
+          <mxGeometry x="10" y="194" width="280" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u-mo" value="&lt;b&gt;models&lt;/b&gt;&lt;br&gt;afiliado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf5ec;strokeColor=#82b366;fontSize=10;" vertex="1" parent="user0">
+          <mxGeometry x="10" y="256" width="280" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u-cf" value="&lt;b&gt;config&lt;/b&gt;&lt;br&gt;database · settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf5ec;strokeColor=#82b366;fontSize=10;" vertex="1" parent="user0">
+          <mxGeometry x="10" y="318" width="280" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u-app" value="app.py" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontStyle=2;fontColor=#82b366;" vertex="1" parent="user0">
+          <mxGeometry x="10" y="380" width="280" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════
+             APPOINTMENT-SERVICE  :8003
+        ═══════════════════════════════════════════════════════ -->
+        <mxCell id="ap0" value="&lt;b&gt;appointment-service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal'&gt;:8003 · FastAPI · Saga (coreografía)&lt;/font&gt;" style="swimlane;startSize=50;fillColor=#ffe6cc;strokeColor=#d6b656;fontColor=#1a1a2e;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="180" width="360" height="600" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ap-ro" value="&lt;b&gt;routers&lt;/b&gt;&lt;br&gt;scheduling · management · admin_citas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="60" width="340" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-sv" value="&lt;b&gt;services&lt;/b&gt;&lt;br&gt;scheduling_service (Saga) · event_publisher · token_service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="132" width="340" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-rp" value="&lt;b&gt;repositories&lt;/b&gt;&lt;br&gt;cita_repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="204" width="340" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-cl" value="&lt;b&gt;clients&lt;/b&gt;&lt;br&gt;medical_client · user_client  (HTTP + Circuit Breaker)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="266" width="340" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-rs" value="&lt;b&gt;resilience&lt;/b&gt;&lt;br&gt;circuit_breakers  (pybreaker · fail_max=3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="338" width="340" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-mo" value="&lt;b&gt;models&lt;/b&gt;&lt;br&gt;cita  (snapshot: paciente_nombre, medico_nombre…)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="400" width="340" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-cf" value="&lt;b&gt;config&lt;/b&gt;&lt;br&gt;database · settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8f0;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="472" width="340" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ap-app" value="app.py" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontStyle=2;fontColor=#d6b656;" vertex="1" parent="ap0">
+          <mxGeometry x="10" y="534" width="340" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════
+             MEDICAL-SERVICE  :8004
+        ═══════════════════════════════════════════════════════ -->
+        <mxCell id="med0" value="&lt;b&gt;medical-service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal'&gt;:8004 · FastAPI · GraphQL (Strawberry)&lt;/font&gt;" style="swimlane;startSize=50;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#1a1a2e;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="180" width="400" height="620" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m-ro" value="&lt;b&gt;routers&lt;/b&gt;&lt;br&gt;doctors · specialties · locations · availability · internal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0f8;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="60" width="380" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sv" value="&lt;b&gt;services&lt;/b&gt;&lt;br&gt;availability_service · slot_service · token_service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0f8;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="132" width="380" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="m-rp" value="&lt;b&gt;repositories&lt;/b&gt;&lt;br&gt;catalogo_repository · horario_repository · medico_repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0f8;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="204" width="380" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="m-gq" value="&lt;b&gt;graphql&lt;/b&gt;&lt;br&gt;schema · queries · types  (Strawberry — solo Query, sin Mutation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0f8;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="276" width="380" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="m-mo" value="&lt;b&gt;models&lt;/b&gt;&lt;br&gt;medico · especialidad · sede · horario&lt;br&gt;jornada_medico · dia_no_habil" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0f8;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="348" width="380" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cf" value="&lt;b&gt;config&lt;/b&gt;&lt;br&gt;database · settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0f8;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="430" width="380" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="m-app" value="app.py" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontStyle=2;fontColor=#9673a6;" vertex="1" parent="med0">
+          <mxGeometry x="10" y="492" width="380" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════════════
+             NOTIFICATION-SERVICE  :8005
+        ═══════════════════════════════════════════════════════ -->
+        <mxCell id="not0" value="&lt;b&gt;notification-service&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:10px;font-weight:normal'&gt;:8005 · FastAPI · AMQP consumer&lt;/font&gt;" style="swimlane;startSize=50;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#1a1a2e;fontSize=12;fontStyle=1;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="180" width="300" height="230" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n-co" value="&lt;b&gt;consumer&lt;/b&gt;&lt;br&gt;rabbitmq_consumer&lt;br&gt;events: cita.agendada · cita.cancelada" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#666666;fontSize=10;" vertex="1" parent="not0">
+          <mxGeometry x="10" y="60" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="n-app" value="app.py  ·  [placeholder — sin DB, sin envío externo aún]" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=9;fontStyle=2;fontColor=#666666;" vertex="1" parent="not0">
+          <mxGeometry x="10" y="152" width="280" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

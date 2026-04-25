@@ -14,6 +14,7 @@ venv/
 .venv/
 env/
 *.egg-info/
+.env.example
 dist/
 build/
 *.log
@@ -38,3 +39,6 @@ Thumbs.db
 
 # ── Claude Code (internal) ─────────────────────────────────────────────────
 .claude/
+
+# ── Otros ─────────────────────────────────────────────────────────────────
+CLAUDE.md

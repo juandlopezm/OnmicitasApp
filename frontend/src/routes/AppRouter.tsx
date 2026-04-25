@@ -1,19 +1,25 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { PrivateRoute } from './PrivateRoute';
 import { AdminPrivateRoute } from './AdminPrivateRoute';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { DashboardPage } from '../pages/DashboardPage';
-import { CitasPage } from '../pages/CitasPage';
-import { CrearCitaPage } from '../pages/CrearCitaPage';
-import { ConfirmacionPage } from '../pages/ConfirmacionPage';
-import { AdminLoginPage } from '../pages/AdminLoginPage';
-import { AdminDashboardPage } from '../pages/AdminDashboardPage';
-import { AfiliadosListPage } from '../pages/AfiliadosListPage';
-import { CrearAfiliadoPage } from '../pages/CrearAfiliadoPage';
-import { EditarAfiliadoPage } from '../pages/EditarAfiliadoPage';
-import { AdminCitasPage } from '../pages/AdminCitasPage';
-import { AdminCrearCitaPage } from '../pages/AdminCrearCitaPage';
+// auth feature
+import { LoginPage } from '../features/auth/LoginPage';
+import { RegisterPage } from '../features/auth/RegisterPage';
+import { AdminLoginPage } from '../features/auth/AdminLoginPage';
+// gestion-citas feature
+import { DashboardPage } from '../features/gestion-citas/DashboardPage';
+import { CitasPage } from '../features/gestion-citas/CitasPage';
+import { CrearCitaPage } from '../features/gestion-citas/CrearCitaPage';
+import { ConfirmacionPage } from '../features/gestion-citas/ConfirmacionPage';
+import { AdminDashboardPage } from '../features/gestion-citas/AdminDashboardPage';
+import { AdminCitasPage } from '../features/gestion-citas/AdminCitasPage';
+import { AdminCrearCitaPage } from '../features/gestion-citas/AdminCrearCitaPage';
+import { AdminMedicosPage } from '../features/gestion-medicos/AdminMedicosPage';
+import { AdminMedicoDetallePage } from '../features/gestion-medicos/AdminMedicoDetallePage';
+// gestion-afiliados feature
+import { AfiliadosListPage } from '../features/gestion-afiliados/AfiliadosListPage';
+import { CrearAfiliadoPage } from '../features/gestion-afiliados/CrearAfiliadoPage';
+import { EditarAfiliadoPage } from '../features/gestion-afiliados/EditarAfiliadoPage';
+import { PerfilPage } from '../features/gestion-afiliados/PerfilPage';
 
 export function AppRouter() {
   return (
@@ -29,6 +35,7 @@ export function AppRouter() {
           <Route path="/citas" element={<CitasPage />} />
           <Route path="/citas/nueva" element={<CrearCitaPage />} />
           <Route path="/citas/confirmacion" element={<ConfirmacionPage />} />
+          <Route path="/perfil" element={<PerfilPage />} />
         </Route>
 
         {/* Login de administrador (público) */}
@@ -42,6 +49,8 @@ export function AppRouter() {
           <Route path="/admin/afiliados/:id/editar" element={<EditarAfiliadoPage />} />
           <Route path="/admin/citas" element={<AdminCitasPage />} />
           <Route path="/admin/citas/nueva" element={<AdminCrearCitaPage />} />
+          <Route path="/admin/medicos" element={<AdminMedicosPage />} />
+          <Route path="/admin/medicos/:id" element={<AdminMedicoDetallePage />} />
         </Route>
 
         {/* Fallback */}

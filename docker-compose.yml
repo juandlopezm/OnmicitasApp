@@ -1,64 +1,360 @@
-version: "3.9"
+# ============================================================================
+# OmniCitas — 5-Microservice Enterprise Architecture
+#
+# Services:
+#   auth-service        :8001 → db-auth
+#   user-service        :8002 → db-users
+#   appointment-service :8003 → db-appointments + rabbitmq
+#   medical-service     :8004 → db-medical
+#   notification-service:8005 → rabbitmq (placeholder)
+#
+# Security patterns:
+#   net-public   — frontend (internet-facing)
+#   net-edge     — nginx ↔ frontend (TLS termination)
+#   net-private  — nginx ↔ kong (internal)
+#   net-internal — kong ↔ services (internal)
+#   net-data     — services ↔ databases / rabbitmq (internal)
+# ============================================================================
 
+# ── Networks ──────────────────────────────────────────────────────────────────
+networks:
+  net-public:
+    driver: bridge
+    name: omnicitas_net_public
+
+  net-edge:
+    driver: bridge
+    name: omnicitas_net_edge
+
+  net-private:
+    driver: bridge
+    name: omnicitas_net_private
+    internal: true
+
+  net-internal:
+    driver: bridge
+    name: omnicitas_net_internal
+    internal: true
+
+  net-data:
+    driver: bridge
+    name: omnicitas_net_data
+    internal: true
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+volumes:
+  postgres_auth_data:
+  postgres_users_data:
+  postgres_appointments_data:
+  postgres_medical_data:
+  nginx_ssl:
+  rabbitmq_data:
+
+# ── Services ──────────────────────────────────────────────────────────────────
 services:
 
-  # ── PostgreSQL ─────────────────────────────────────────────────────────────
-  db:
+  # ── Databases ─────────────────────────────────────────────────────────────
+  #
+  # NOTA DE DESARROLLO: Los puertos 5433-5436 y la red net-public en las bases
+  # de datos son SOLO para acceso externo desde DataGrip / pgAdmin.
+  # Antes de ir a producción, elimina:
+  #   - Las líneas "ports:" de cada base de datos
+  #   - Las líneas "- net-public" del bloque "networks:" de cada base de datos
+  # ──────────────────────────────────────────────────────────────────────────
+
+  db-auth:
     image: postgres:16-alpine
-    container_name: omnicitas_db
+    container_name: omnicitas_db_auth
     restart: unless-stopped
     environment:
-      POSTGRES_DB: omnicitas_db
-      POSTGRES_USER: omnicitas_user
-      POSTGRES_PASSWORD: omnicitas_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_DB: omnicitas_auth
+      POSTGRES_USER: omnicitas
+      POSTGRES_PASSWORD: omnicitas123
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - net-public
+      - net-data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U omnicitas_user -d omnicitas_db"]
+      test: ["CMD-SHELL", "pg_isready -U omnicitas -d omnicitas_auth"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ── Backend Flask ──────────────────────────────────────────────────────────
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: omnicitas_backend
+  db-users:
+    image: postgres:16-alpine
+    container_name: omnicitas_db_users
     restart: unless-stopped
     environment:
-      FLASK_ENV: production
-      SECRET_KEY: ${SECRET_KEY:-cambia_esta_clave_en_produccion}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-cambia_este_jwt_en_produccion}
-      DATABASE_URL: postgresql://omnicitas_user:omnicitas_pass@db:5432/omnicitas_db
-      CORS_ORIGINS: http://localhost:3000
+      POSTGRES_DB: omnicitas_users
+      POSTGRES_USER: omnicitas
+      POSTGRES_PASSWORD: omnicitas123
     ports:
-      - "5000:5000"
-    depends_on:
-      db:
-        condition: service_healthy
+      - "5434:5432"
     volumes:
-      - ./backend:/app          # solo para desarrollo; quitar en producción
-    command: >
-      sh -c "python seed.py && gunicorn --bind 0.0.0.0:5000 --workers 1 --threads 4 --timeout 120 --worker-class gthread app.app:app"
+      - postgres_users_data:/var/lib/postgresql/data
+    networks:
+      - net-public
+      - net-data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnicitas -d omnicitas_users"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # ── Frontend React/Nginx ───────────────────────────────────────────────────
+  db-appointments:
+    image: postgres:16-alpine
+    container_name: omnicitas_db_appointments
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: omnicitas_appointments
+      POSTGRES_USER: omnicitas
+      POSTGRES_PASSWORD: omnicitas123
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_appointments_data:/var/lib/postgresql/data
+    networks:
+      - net-public
+      - net-data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnicitas -d omnicitas_appointments"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db-medical:
+    image: postgres:16-alpine
+    container_name: omnicitas_db_medical
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: omnicitas_medical
+      POSTGRES_USER: omnicitas
+      POSTGRES_PASSWORD: omnicitas123
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_medical_data:/var/lib/postgresql/data
+    networks:
+      - net-public
+      - net-data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omnicitas -d omnicitas_medical"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Message Broker ─────────────────────────────────────────────────────────
+
+  rabbitmq-core:
+    image: rabbitmq:3.13-management-alpine
+    container_name: omnicitas_rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"  # management UI — http://localhost:15672
+    networks:
+      - net-data
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ── Microservices ──────────────────────────────────────────────────────────
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: omnicitas_auth
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://omnicitas:omnicitas123@db-auth:5432/omnicitas_auth
+      PRIVATE_KEY_PATH: /app/keys/private.pem
+      PUBLIC_KEY_PATH: /app/keys/public.pem
+      USER_SERVICE_URL: http://user-service:8002
+    volumes:
+      - ./services/auth-service/keys:/app/keys:ro
+    depends_on:
+      db-auth:
+        condition: service_healthy
+    networks:
+      - net-internal
+      - net-data
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: omnicitas_users
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://omnicitas:omnicitas123@db-users:5432/omnicitas_users
+      PUBLIC_KEY_PATH: /app/keys/public.pem
+    volumes:
+      - ./services/user-service/keys:/app/keys:ro
+    depends_on:
+      db-users:
+        condition: service_healthy
+    networks:
+      - net-internal
+      - net-data
+
+  appointment-service:
+    build:
+      context: ./services/appointment-service
+      dockerfile: Dockerfile
+    # container_name: omnicitas_appointments
+    deploy:
+      replicas: 3
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://omnicitas:omnicitas123@db-appointments:5432/omnicitas_appointments
+      PUBLIC_KEY_PATH: /app/keys/public.pem
+      MEDICAL_SERVICE_URL: http://medical-service:8004
+      USER_SERVICE_URL: http://user-service:8002
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq-core:5672/
+    volumes:
+      - ./services/appointment-service/keys:/app/keys:ro
+    depends_on:
+      db-appointments:
+        condition: service_healthy
+      rabbitmq-core:
+        condition: service_healthy
+    networks:
+      - net-internal
+      - net-data
+
+  medical-service:
+    build:
+      context: ./services/medical-service
+      dockerfile: Dockerfile
+    container_name: omnicitas_medical
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://omnicitas:omnicitas123@db-medical:5432/omnicitas_medical
+      PUBLIC_KEY_PATH: /app/keys/public.pem
+    volumes:
+      - ./services/medical-service/keys:/app/keys:ro
+    depends_on:
+      db-medical:
+        condition: service_healthy
+    networks:
+      - net-internal
+      - net-data
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: omnicitas_notifications
+    restart: unless-stopped
+    depends_on:
+      rabbitmq-core:
+        condition: service_healthy
+    networks:
+      - net-internal
+      - net-data
+
+  # ── Kong API Gateway (DB-less) ─────────────────────────────────────────────
+
+  kong:
+    build:
+      context: ./kong
+      dockerfile: Dockerfile
+    container_name: omnicitas_kong
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_LOG_LEVEL: warn
+      # Shared memory dict para rate limiting por usuario (pre-function Lua)
+      # 10m ≈ 80.000 contadores simultáneos de usuarios activos
+      KONG_NGINX_HTTP_LUA_SHARED_DICT: "omnicitas_rl 10m"
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: "resty.http,cjson.safe"
+    depends_on:
+      - auth-service
+      - user-service
+      - appointment-service
+      - medical-service
+      - notification-service
+    networks:
+      - net-private
+      - net-internal
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:5000
+        VITE_API_URL: https://localhost
     container_name: omnicitas_frontend
     restart: unless-stopped
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
+    networks:
+      - net-public
+      - net-edge
 
-  # ── pgAdmin (opcional) ─────────────────────────────────────────────────────
+  # ── Proxy (Nginx: TLS + Reverse Proxy) ────────────────────────────────────
+
+  proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    container_name: omnicitas_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginx_ssl:/etc/nginx/ssl
+    depends_on:
+      - kong
+      - frontend
+    networks:
+      - net-public
+      - net-edge
+      - net-private
+
+  # ── Seed ──────────────────────────────────────────────────────────────────
+
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.seed
+    container_name: omnicitas_seed
+    restart: "no"
+    environment:
+      DB_AUTH_URL: postgresql://omnicitas:omnicitas123@db-auth:5432/omnicitas_auth
+      DB_USERS_URL: postgresql://omnicitas:omnicitas123@db-users:5432/omnicitas_users
+      DB_APPOINTMENTS_URL: postgresql://omnicitas:omnicitas123@db-appointments:5432/omnicitas_appointments
+      DB_MEDICAL_URL: postgresql://omnicitas:omnicitas123@db-medical:5432/omnicitas_medical
+    depends_on:
+      db-auth:
+        condition: service_healthy
+      db-users:
+        condition: service_healthy
+      db-appointments:
+        condition: service_healthy
+      db-medical:
+        condition: service_healthy
+    networks:
+      - net-data
+    profiles:
+      - seed
+
+  # ── pgAdmin (dev tools) ────────────────────────────────────────────────────
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: omnicitas_pgadmin
@@ -67,11 +363,9 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@omnicitas.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "5050:80"
-    depends_on:
-      - db
+      - "5051:80"
+    networks:
+      - net-public
+      - net-data
     profiles:
-      - tools   # solo se levanta con: docker compose --profile tools up
-
-volumes:
-  postgres_data:
+      - tools

@@ -1,5 +1,5 @@
-import { AuthProvider } from './context/AuthContext';
-import { AdminAuthProvider } from './context/AdminAuthContext';
+import { AuthProvider } from './store/AuthContext';
+import { AdminAuthProvider } from './store/AdminAuthContext';
 import { AppRouter } from './routes/AppRouter';
 
 function App() {

@@ -21,6 +21,12 @@ export function formatearHora(hora: string): string {
   return `${String(hora12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${periodo}`;
 }
 
+export function obtenerFechaEnDias(n: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() + n)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 export function obtenerProximos7Dias(): string[] {
   // Retorna array de fechas YYYY-MM-DD desde mañana
   const dias: string[] = [];
